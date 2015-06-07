@@ -3,31 +3,35 @@ package com.caeps.loadDatabase;
 public class AnalogMeasurements extends CIMObject{
 	
 	private int instant;
-	private double voltage;
-	private double angle;
+	private double value;
+//	private Substation substation;
 	private Cluster cluster;
 	
-	public AnalogMeasurements(String rdfId, int instant, double voltage, double angle)
+	public AnalogMeasurements(String rdfId, String name, int instant, double value)
 	{
-		super(rdfId);
+		super(rdfId, name);
 		this.instant=instant;
-		this.voltage=voltage;
-		this.angle=angle;
+		this.value=value;
+//		this.substation=substation;
 	}
 	
 	public int getInstant(){
 		return instant;
 	}
 	
-	public double getVoltage(){
-		return voltage;
+	public double getValue(){
+		return value;
 	}
+
+//	public Substation getSubstation(){
+//		return substation;
+//	}
 	
-	public double getAngle(){
-		return angle;
+	public Cluster getCluster(){
+		return cluster;
 	}
-	
-	public setCluster(Cluster a){
+
+	public void setCluster(Cluster a){
 		cluster=a;
 	}
 
