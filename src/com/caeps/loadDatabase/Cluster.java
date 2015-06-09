@@ -1,11 +1,12 @@
 package com.caeps.loadDatabase;
 
 public class Cluster {
-	private String clusterLabel;
+	private int clusterLabel;
 	private double voltage;
 	private double angle;
+	private String descr;
 	
-	public Cluster(String clusterLabel){
+	public Cluster(int clusterLabel){
 		this.clusterLabel=clusterLabel;
 	}
 	
@@ -25,7 +26,15 @@ public class Cluster {
 		return angle;
 	}
 
-	public String getLabel(){
+	public int getLabel(){
 		return clusterLabel;
+	}
+	
+	public String getDesc(){
+		return descr;
+	}
+	
+	public void setDesc(String d){
+		descr=d;
 	}
 }
