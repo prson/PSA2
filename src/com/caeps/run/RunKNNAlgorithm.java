@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 
 import com.caeps.loadDatabase.Cluster;
-import com.caeps.loadDatabase.ConnectToDB;
 import com.caeps.loadDatabase.Instant;
 
 public class RunKNNAlgorithm {

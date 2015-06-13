@@ -1,5 +1,9 @@
 package com.caeps.run;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,8 +29,21 @@ public class RunMeansAlgorithm {
 		ArrayList<Instant> instants = new ArrayList<Instant>();
 
 		try {
-//			 Creating the initial cluster assuming random values
-//			int countSubst = 0;
+			
+			ArrayList<AnalogMeasurement> analogMeasurement1 = new ArrayList<AnalogMeasurement>();
+			
+			String dataFile = "initial_data.csv";
+			// Define buffer and split element
+			BufferedReader br = null;
+			try {
+				br = new BufferedReader(new FileReader(dataFile));
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}// load a file into buffer;
+			String line;
+			int countSubst=0;
+			
 			String query = "Select * from substations";
 //			for (int i = 1; i <= 4; i++) {
 //				ArrayList<AnalogMeasurement> analogMeasurements = new ArrayList<AnalogMeasurement>();
@@ -35,10 +52,22 @@ public class RunMeansAlgorithm {
 //				countSubst=0;
 //				while (rs.next()) {
 //					String rdfId = rs.getString("rdfid");
-//					AnalogMeasurement analogMeasurementObj = new AnalogMeasurement(
-//							0, (0.9+0.1*Math.random()), (Math.random()-1)*15, rdfId);
-//					analogMeasurements.add(analogMeasurementObj);
-//					countSubst++;
+//					try {
+//						
+//						if ((line = br.readLine()) != null) {
+//							// Read each line of file
+//								String a[]=line.split(",");
+//								AnalogMeasurement analogMeasurementObj =new AnalogMeasurement(0,Double.parseDouble(a[0]),Double.parseDouble(a[1]),rdfId);
+//								analogMeasurements.add(analogMeasurementObj);
+//							}
+//						countSubst++;
+//					} catch (NumberFormatException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					} catch (IOException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
 //				}
 //				Cluster clusterObj = new Cluster(i, analogMeasurements);
 //				clusters.add(clusterObj);
@@ -74,10 +103,10 @@ public class RunMeansAlgorithm {
 				}
 				Instant instantObj = new Instant(i, analogMeasurements);
 				instants.add(instantObj);
-				if(i<=4 && i>=1){
-					Cluster clusterObj=new Cluster(i, analogMeasurements);
-					clusters.add(clusterObj);
-					}
+//				if(i<=4 && i>=1){
+//					Cluster clusterObj=new Cluster(i, analogMeasurements);
+//					clusters.add(clusterObj);
+//					}
 			}
 
 		} catch (SQLException e) {
@@ -125,25 +154,6 @@ public class RunMeansAlgorithm {
 
 	}
 
-	public static Cluster state(int a[],
-			ArrayList<AnalogMeasurement> trainingAnalogMeasurements) {
-		AnalogMeasurement analogMeasurementObj = null;
-		double max = Double.NEGATIVE_INFINITY;
-		int maxIndex = -1;
-		for (int k = 0; k < a.length; k++) {
-			if (max < a[k]) {
-				maxIndex = k;
-				max = a[k];
-			}
-		}
-		maxIndex++;
-		for (int i = 0; i < trainingAnalogMeasurements.size(); i++) {
-			if (trainingAnalogMeasurements.get(i).getCluster().getLabel() == maxIndex) {
-				analogMeasurementObj = trainingAnalogMeasurements.get(i);
-			}
-		}
-		return analogMeasurementObj.getCluster();
-	}
 
 	public static ArrayList<Cluster> calculateKMeans(
 			ArrayList<Instant> instants, ArrayList<Cluster> clusters) {
@@ -194,9 +204,9 @@ public class RunMeansAlgorithm {
 					voltageSum = voltageSum
 							+ instants.get(i).getAnalogMeasurements().get(j)
 									.getVoltageValue();
-					angleSum = voltageSum
+					angleSum = angleSum
 							+ instants.get(i).getAnalogMeasurements().get(j)
-									.getVoltageValue();
+									.getAngleValue();
 					count++;
 
 				}
@@ -213,13 +223,13 @@ public class RunMeansAlgorithm {
 			{
 				logger.debug("Count becomes zero for cluster "+clusterObj.getLabel());
 				analogMeasurementObj = clusterObj.getAnalogMeasurements().get(j);
-				analogMeasurementObj=new AnalogMeasurement(0, clusterObj
-						.getAnalogMeasurements().get(j)
-						.getAngleValue()+2, clusterObj
-						.getAnalogMeasurements().get(j)
-						.getVoltageValue()+0.1, clusterObj
-							.getAnalogMeasurements().get(j)
-							.getSubstationRdfID());
+//				analogMeasurementObj=new AnalogMeasurement(0, clusterObj
+//						.getAnalogMeasurements().get(j)
+//						.getAngleValue()+2, clusterObj
+//						.getAnalogMeasurements().get(j)
+//						.getVoltageValue()+0.1, clusterObj
+//							.getAnalogMeasurements().get(j)
+//							.getSubstationRdfID());
 			}
 			analogMeasurements.add(analogMeasurementObj);
 		}
@@ -277,6 +287,27 @@ public class RunMeansAlgorithm {
 		logger.debug("Converge? "+converge);
 		return converge;
 	}
+	
+	public static Cluster state(int a[],
+			ArrayList<AnalogMeasurement> trainingAnalogMeasurements) {
+		AnalogMeasurement analogMeasurementObj = null;
+		double max = Double.NEGATIVE_INFINITY;
+		int maxIndex = -1;
+		for (int k = 0; k < a.length; k++) {
+			if (max < a[k]) {
+				maxIndex = k;
+				max = a[k];
+			}
+		}
+		maxIndex++;
+		for (int i = 0; i < trainingAnalogMeasurements.size(); i++) {
+			if (trainingAnalogMeasurements.get(i).getCluster().getLabel() == maxIndex) {
+				analogMeasurementObj = trainingAnalogMeasurements.get(i);
+			}
+		}
+		return analogMeasurementObj.getCluster();
+	}
+
 
 	static public void displayClusters(ArrayList<Cluster> clusters) {
 		for (int j = 0; j < clusters.size(); j++) {
