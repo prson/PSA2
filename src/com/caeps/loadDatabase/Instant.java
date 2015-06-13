@@ -1,5 +1,7 @@
 package com.caeps.loadDatabase;
 
+import java.util.ArrayList;
+
 import com.caeps.loadDatabase.Cluster;
 
 public class Instant {
@@ -7,12 +9,12 @@ public class Instant {
 	private double avgVoltage;
 	private double avgAngle;
 	private int instant;
+	private ArrayList<AnalogMeasurement> analogMeasurements=new ArrayList<AnalogMeasurement>();
 	private Cluster belongsToClusters;
 	
-	public Instant(int instant, double avgVoltage, double avgAngle){
+	public Instant(int instant, ArrayList<AnalogMeasurement> analogMeasurements){
 		this.instant=instant;
-		this.avgVoltage=avgVoltage;
-		this.avgAngle=avgAngle;
+		this.analogMeasurements=analogMeasurements;
 	}
 	
 	public double getAvgVoltage(){
@@ -35,5 +37,8 @@ public class Instant {
 		belongsToClusters=a;
 	}
 	
+	public ArrayList<AnalogMeasurement> getAnalogMeasurements(){
+		return analogMeasurements;
+	}
 
 }
