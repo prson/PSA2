@@ -20,15 +20,9 @@ public class RunMeansAlgorithm {
 
 	private static Logger logger = Logger.getLogger(RunMeansAlgorithm.class);
 	static ArrayList<Cluster> clusters = new ArrayList<Cluster>();
-
-	public static void main(Connection connTraining, Connection connTest) {
-		int k = 7;
-		ConnectToDB connectDBObj = new ConnectToDB();
-		connTraining = connectDBObj.establishConnection(
-				"jdbc:mysql://localhost:3306/powersystemassignment2", "root",
-				"root");
-		ArrayList<Instant> instants = new ArrayList<Instant>();
-
+	ArrayList<Instant> instants = new ArrayList<Instant>();
+	
+	public void formClusters(Connection connTraining) {
 		try {
 			String dataFile = "initial_data.csv";
 			// Define buffer and split element
@@ -142,16 +136,16 @@ public class RunMeansAlgorithm {
 		logger.debug("************************************Resulting learning instants*****************************************************");
 		displayInstants(instants);
 		logger.debug("************************************Resulting learning instants*****************************************************");
-		RunKNNAlgorithm runKnnAlgorithmSubstationObj = new RunKNNAlgorithm();
-		ArrayList<Instant> testInstants = runKnnAlgorithmSubstationObj
-				.runKNNAlgorithm(connTest,instants, k);
-		logger.debug(testInstants.size());
-		logger.debug("*************************************Results of Test Data Instants****************************************");
-		displayInstants(testInstants);
-		logger.debug("*************************************Results of Test Data Instants****************************************");
+//		RunKNNAlgorithm runKnnAlgorithmSubstationObj = new RunKNNAlgorithm();
+//		ArrayList<Instant> testInstants = runKnnAlgorithmSubstationObj
+//				.runKNNAlgorithm(connTest,instants, k);
+//		logger.debug(testInstants.size());
+//		logger.debug("*************************************Results of Test Data Instants****************************************");
+//		displayInstants(testInstants);
+//		logger.debug("*************************************Results of Test Data Instants****************************************");
 	}
 
-	public static ArrayList<Cluster> calculateKMeans(
+	public ArrayList<Cluster> calculateKMeans(
 			ArrayList<Instant> instants, ArrayList<Cluster> clusters) {
 		ArrayList<Cluster> newClusters = new ArrayList<Cluster>();
 		int iteration = 1;
@@ -318,7 +312,7 @@ public class RunMeansAlgorithm {
 		}
 	}
 
-	static public void displayAnlogMeas(
+	public void displayAnlogMeas(
 			ArrayList<AnalogMeasurement> analogMeasurements) {
 		for (int j = 0; j < analogMeasurements.size(); j++) {
 			logger.debug(analogMeasurements.get(j).getInstant() + ":"
@@ -329,7 +323,7 @@ public class RunMeansAlgorithm {
 		}
 	}
 
-	static public void displayInstants(ArrayList<Instant> instants) {
+	public void displayInstants(ArrayList<Instant> instants) {
 		for (int j = 0; j < instants.size(); j++) {
 			logger.debug(instants.get(j).getInstant() + ":"
 					+ instants.get(j).getAvgAngle() + ":"
@@ -338,7 +332,7 @@ public class RunMeansAlgorithm {
 		}
 	}
 
-	static public ArrayList<Cluster> compareClusters(ArrayList<Cluster> clusters) {
+	public ArrayList<Cluster> compareClusters(ArrayList<Cluster> clusters) {
 		double a[] = { clusters.get(0).getVoltage(),
 				clusters.get(1).getVoltage(), clusters.get(2).getVoltage(),
 				clusters.get(3).getVoltage() };
@@ -367,6 +361,14 @@ public class RunMeansAlgorithm {
 			}
 		}
 		return a;
+	}
+	
+	public ArrayList<Cluster> getClusters(){
+		return clusters;
+	}
+	
+	public ArrayList<Instant> getInstants(){
+		return instants;
 	}
 
 }

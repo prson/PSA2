@@ -6,9 +6,12 @@ import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -28,7 +31,11 @@ import java.sql.*;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.log4j.Logger;
 
+import com.caeps.loadDatabase.Cluster;
+import com.caeps.loadDatabase.Instant;
 import com.caeps.run.ConnectToDB;
+import com.caeps.run.RunKNNAlgorithm;
+import com.caeps.run.RunMeansAlgorithm;
 
 public class PSAnalysisPanel extends JPanel {
 
@@ -55,6 +62,13 @@ public class PSAnalysisPanel extends JPanel {
 
 	JTextArea resultsArea;
 	public static JTextArea consoleArea;
+	
+	ArrayList<Cluster> clusters;
+	ArrayList<Instant> learningInstants;
+	ArrayList<Instant> testInstants;
+	
+	private int k=7;
+	
 
 	public PSAnalysisPanel() {
 		
@@ -94,7 +108,7 @@ public class PSAnalysisPanel extends JPanel {
 		establishLearningSetConnectionPanel.add(learningSetConnectionPasswordField);
 		establishLearningSetConnectionPanel.add(establishLearningSetConnectionButton);
 
-		JLabel learningSetFilenameUrlLabel = new JLabel("Learning set file Location: ");
+		JLabel learningSetFilenameUrlLabel = new JLabel("Learning set SQL file Location: ");
 
 		learningSetFilenameUrlField = new JTextField();
 		learningSetFilenameUrlField.setText("assignment2correct_data.sql");
@@ -106,7 +120,7 @@ public class PSAnalysisPanel extends JPanel {
 
 		JPanel loadLearningSetFilePanel = new JPanel();
 		loadLearningSetFilePanel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createTitledBorder("Enter the SQL file details"),
+				BorderFactory.createTitledBorder("Learning Set SQL file details"),
 				BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 		loadLearningSetFilePanel.add(learningSetFilenameUrlLabel);
 		loadLearningSetFilePanel.add(learningSetFilenameUrlField);
@@ -131,7 +145,8 @@ public class PSAnalysisPanel extends JPanel {
 		testSetConnectionPasswordField.setText("root");
 		testSetConnectionPasswordField.setColumns(5);
 
-		JButton establishTestSetConnectionButton = new JButton("Establish Connection");
+		//Establish Test Connection Button
+		JButton establishTestSetConnectionButton = new JButton("Establish Test Connection");
 		EstablishTestSetConnectionMouseListener establishTestSetConnectionMouseListener = new EstablishTestSetConnectionMouseListener();
 		establishTestSetConnectionButton.addMouseListener(establishTestSetConnectionMouseListener);
 
@@ -167,7 +182,7 @@ public class PSAnalysisPanel extends JPanel {
 		loadTestSetFilePanel.add(testSetFilenameUrlField);
 		loadTestSetFilePanel.add(loadTestSetFileButton);		
 		
-		
+		// The execute clustering button
 		JButton clusterLearningSet = new JButton("Cluster Learning Set");
 		ClusterLearningSetMouseListener clusterLearningSetMouseListener = new ClusterLearningSetMouseListener();
 		clusterLearningSet.addMouseListener(clusterLearningSetMouseListener);
@@ -284,8 +299,13 @@ public class PSAnalysisPanel extends JPanel {
 		public void mouseClicked(MouseEvent e) {
 			logger.debug("Inside load learning set SQL file listener");
 
-			learningSetDocReader = new BufferedReader(
-                    new FileReader(learningSetFilenameUrlField.getText()));
+			try {
+				learningSetDocReader = new BufferedReader(
+				        new FileReader(learningSetFilenameUrlField.getText()));
+			} catch (FileNotFoundException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
 
 			if (learningSetDocReader != null) {
 				if (learningSetConn != null) {
@@ -293,6 +313,11 @@ public class PSAnalysisPanel extends JPanel {
 							.append("\nCongrats! Learning set SQL file exists. Now executing and loading the database.....");
 					try {
 						ScriptRunner sr = new ScriptRunner(learningSetConn);
+						String query = "Create database if not exists PS2Learning";
+						PreparedStatement stat = learningSetConn.prepareStatement(query);
+						stat.executeUpdate();
+						query = "use PS2Learning";
+						stat.executeUpdate();
 			 			sr.runScript(learningSetDocReader);
 			 
 					} catch (Exception e1) {
@@ -341,26 +366,26 @@ public class PSAnalysisPanel extends JPanel {
 			} else {
 				consoleArea.append("\nClustering learning set...");
 
-				TwoDArray vbus = LoadXMLSQL.vbus;
-				int numOfBuses = vbus.height;
-				logger.debug("Y Bus Matrix");
-				String result = "Y Bus Matrix (No. of Buses/Substations = "
-						+ numOfBuses + ")\n\n";
-				for (int i = 0; i < numOfBuses; i++) {
-					for (int j = 0; j < numOfBuses; j++) {
-						String sign1 = (ybus.values[i][j].real > 0) ? ("+")
-								: ("");
-						String sign2 = (ybus.values[i][j].imaginary > 0) ? ("+")
-								: ("");
-						result = result
-								+ sign1
-								+ String.format("%.4f", ybus.values[i][j].real)
-								+ sign2
-								+ String.format("%.4f",
-										ybus.values[i][j].imaginary) + "i   ";
-					}
-					result = result + "\n";
+				RunMeansAlgorithm runMeanObj=new RunMeansAlgorithm();
+				runMeanObj.formClusters(learningSetConn);
+				clusters=runMeanObj.getClusters();
+				learningInstants=runMeanObj.getInstants();
+				String result="Clusters:\nCluster Type                               ";
+				for(int j=0;j<clusters.get(0).getAnalogMeasurements().size();j++){
+					result+="Sub "+(j+1);
 				}
+				result=result+"\n";
+				for(int i=0;i<clusters.size();i++){
+					result+=clusters.get(i).getDesc();
+					for(int j=0;j<clusters.get(i).getAnalogMeasurements().size();j++){
+						result+=clusters.get(i).getAnalogMeasurements().get(j).getVoltageValue();
+					}
+					result+="                         ";
+					for(int j=0;j<clusters.get(i).getAnalogMeasurements().size();j++){
+						result+=clusters.get(i).getAnalogMeasurements().get(j).getAngleValue();
+					}
+				}
+				
 				consoleArea.append("\nLearning set clustered!");
 				resultsArea.setText(result);
 			}
@@ -421,8 +446,13 @@ public class PSAnalysisPanel extends JPanel {
 
 		public void mouseClicked(MouseEvent e) {
 			logger.debug("Inside load file listener");
-			testSetDocReader = new BufferedReader(
-                    new FileReader(testSetFilenameUrlField.getText()));
+			try {
+				testSetDocReader = new BufferedReader(
+				        new FileReader(testSetFilenameUrlField.getText()));
+			} catch (FileNotFoundException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
 
 			if (testSetDocReader != null) {
 				if (testSetConn != null) {
@@ -430,8 +460,12 @@ public class PSAnalysisPanel extends JPanel {
 							.append("\nCongrats! Test set SQL file exists. Now executing and loading the database.....");
 					try {
 						ScriptRunner sr = new ScriptRunner(testSetConn);
+						String query = "Create database if not exists PS2Test";
+						PreparedStatement stat = testSetConn.prepareStatement(query);
+						stat.executeUpdate();
+						query = "use PS2Test";
+						stat.executeUpdate();
 			 			sr.runScript(testSetDocReader);
-			 
 					} catch (Exception e1) {
 						consoleArea
 						.append("\nSorry! Failed to execute the test set SQL script. Check the logs for details");
@@ -477,26 +511,19 @@ public class PSAnalysisPanel extends JPanel {
 				logger.error("The test set SQL file has not been read yet. Please load the file before classifying test set!");
 			} else {
 				consoleArea.append("\nClassifying test set...");
-				TwoDArray ybus = LoadXMLSQL.ybus;
-				int numOfBuses = ybus.height;
-				logger.debug("Y Bus Matrix");
-				String result = "Y Bus Matrix (No. of Buses/Substations = "
-						+ numOfBuses + ")\n\n";
-				for (int i = 0; i < numOfBuses; i++) {
-					for (int j = 0; j < numOfBuses; j++) {
-						String sign1 = (ybus.values[i][j].real > 0) ? ("+")
-								: ("");
-						String sign2 = (ybus.values[i][j].imaginary > 0) ? ("+")
-								: ("");
-						result = result
-								+ sign1
-								+ String.format("%.4f", ybus.values[i][j].real)
-								+ sign2
-								+ String.format("%.4f",
-										ybus.values[i][j].imaginary) + "i   ";
-					}
-					result = result + "\n";
+				
+				RunKNNAlgorithm runKNNObj=new RunKNNAlgorithm();
+				runKNNObj.runKNNAlgorithm(learningSetConn, learningInstants, k);
+				testInstants=runKNNObj.getTestInstants();
+				runKNNObj.displayInstants(testInstants);
+				String result="Instant after classficiation:\n";
+				for (int j = 0; j < testInstants.size(); j++) {
+					result+=testInstants.get(j).getInstant() + ":"
+							+ testInstants.get(j).getAvgAngle() + ":"
+							+ testInstants.get(j).getAvgVoltage() + ":"
+							+ testInstants.get(j).getCluster().getDesc()+"\n";
 				}
+				
 				consoleArea.append("\nTest set classified!");
 				resultsArea.setText(result);
 			}

@@ -17,12 +17,9 @@ public class RunKNNAlgorithm {
 	private static Logger logger = Logger.getLogger(RunKNNAlgorithm.class);
 	ArrayList<Instant> testInstants = new ArrayList<Instant>();
 
-	ArrayList<Instant> runKNNAlgorithm(Connection connTest, ArrayList<Instant> trainingInstants, int k) {
+	public void runKNNAlgorithm(Connection connTest, ArrayList<Instant> trainingInstants, int k) {
 
-	ConnectToDB connectDBObj = new ConnectToDB();
-	connTest = connectDBObj.establishConnection("jdbc:mysql://localhost:3306/powersystemassignment2testdata","root", "root");
 		try {
-
 			String query = "SELECT MAX(time) FROM analog_meas";
 			PreparedStatement stat = connTest.prepareStatement(query);
 			ResultSet rs = stat.executeQuery();
@@ -76,7 +73,7 @@ public class RunKNNAlgorithm {
 
 		testInstants = identifyClusterForInstants(testInstants,
 				trainingInstants, k);
-		return testInstants;
+		
 	}
 
 	ArrayList<Instant> identifyClusterForInstants(
@@ -152,4 +149,18 @@ public class RunKNNAlgorithm {
 		}
 		return instantObj.getCluster();
 	}
+	
+	public ArrayList<Instant> getTestInstants(){
+	return testInstants;
+	}
+	
+	public void displayInstants(ArrayList<Instant> instants) {
+		for (int j = 0; j < instants.size(); j++) {
+			logger.debug(instants.get(j).getInstant() + ":"
+					+ instants.get(j).getAvgAngle() + ":"
+					+ instants.get(j).getAvgVoltage() + ":"
+					+ instants.get(j).getCluster().getDesc());
+		}
+	}
+
 }
