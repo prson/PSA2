@@ -1,7 +1,6 @@
 package com.caeps.gui;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -11,7 +10,6 @@ import java.io.FileReader;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -95,11 +93,6 @@ public class PSAnalysisPanel extends JPanel {
 		establishLearningSetConnectionButton.addMouseListener(establishLearningSetConnectionMouseListener);
 
 		JPanel establishLearningSetConnectionPanel = new JPanel();
-		establishLearningSetConnectionPanel
-				.setBorder(BorderFactory.createCompoundBorder(
-						BorderFactory
-								.createTitledBorder("Enter the learning set database connection parameters"),
-						BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 		establishLearningSetConnectionPanel.add(learningSetConnectionUrlLabel);
 		establishLearningSetConnectionPanel.add(learningSetConnectionUrlField);
 		establishLearningSetConnectionPanel.add(learningSetConnectionUsernameLabel);
@@ -119,12 +112,16 @@ public class PSAnalysisPanel extends JPanel {
 		loadLearningSetFileButton.addMouseListener(loadLearningSetFileMouseListener);
 
 		JPanel loadLearningSetFilePanel = new JPanel();
-		loadLearningSetFilePanel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createTitledBorder("Learning Set SQL file details"),
-				BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 		loadLearningSetFilePanel.add(learningSetFilenameUrlLabel);
 		loadLearningSetFilePanel.add(learningSetFilenameUrlField);
 		loadLearningSetFilePanel.add(loadLearningSetFileButton);
+		establishLearningSetConnectionPanel.add(loadLearningSetFilePanel);
+		establishLearningSetConnectionPanel
+		.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory
+						.createTitledBorder("Enter the learning set database connection parameters"),
+				BorderFactory.createEmptyBorder(5, 15, 35, 15)));
+
 
 
 		JLabel testSetConnectionUrlLabel = new JLabel("Test set connection URL: ");
@@ -146,7 +143,7 @@ public class PSAnalysisPanel extends JPanel {
 		testSetConnectionPasswordField.setColumns(5);
 
 		//Establish Test Connection Button
-		JButton establishTestSetConnectionButton = new JButton("Establish Test Connection");
+		JButton establishTestSetConnectionButton = new JButton("Establish Connection");
 		EstablishTestSetConnectionMouseListener establishTestSetConnectionMouseListener = new EstablishTestSetConnectionMouseListener();
 		establishTestSetConnectionButton.addMouseListener(establishTestSetConnectionMouseListener);
 
@@ -155,7 +152,7 @@ public class PSAnalysisPanel extends JPanel {
 				.setBorder(BorderFactory.createCompoundBorder(
 						BorderFactory
 								.createTitledBorder("Enter the test set database connection parameters"),
-						BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+						BorderFactory.createEmptyBorder(5, 15, 35, 15)));
 		establishTestSetConnectionPanel.add(testSetConnectionUrlLabel);
 		establishTestSetConnectionPanel.add(testSetConnectionUrlField);
 		establishTestSetConnectionPanel.add(testSetConnectionUsernameLabel);
@@ -164,7 +161,7 @@ public class PSAnalysisPanel extends JPanel {
 		establishTestSetConnectionPanel.add(testSetConnectionPasswordField);
 		establishTestSetConnectionPanel.add(establishTestSetConnectionButton);
 
-		JLabel testSetFilenameUrlLabel = new JLabel("Test set file Location: ");
+		JLabel testSetFilenameUrlLabel = new JLabel("Test set SQL file Location: ");
 
 		testSetFilenameUrlField = new JTextField();
 		testSetFilenameUrlField.setText("assignment2_testset.sql");
@@ -175,12 +172,10 @@ public class PSAnalysisPanel extends JPanel {
 		loadTestSetFileButton.addMouseListener(loadTestSetFileMouseListener);
 
 		JPanel loadTestSetFilePanel = new JPanel();
-		loadLearningSetFilePanel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createTitledBorder("Enter the SQL file details"),
-				BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 		loadTestSetFilePanel.add(testSetFilenameUrlLabel);
 		loadTestSetFilePanel.add(testSetFilenameUrlField);
-		loadTestSetFilePanel.add(loadTestSetFileButton);		
+		loadTestSetFilePanel.add(loadTestSetFileButton);
+		establishTestSetConnectionPanel.add(loadTestSetFilePanel);
 		
 		// The execute clustering button
 		JButton clusterLearningSet = new JButton("Cluster Learning Set");
@@ -192,32 +187,35 @@ public class PSAnalysisPanel extends JPanel {
 		classifyTestSet.addMouseListener(classifyTestSetMouseListener);
 
 		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-		buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		buttonPanel.setPreferredSize(new Dimension(200, 200));
+//		buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+//		buttonPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+//		buttonPanel.setPreferredSize(new Dimension(150, 100));
 		buttonPanel.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createTitledBorder("Perform Ops"),
-				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+				BorderFactory.createEmptyBorder(0, 5, 5, 5)));
 		buttonPanel.add(clusterLearningSet);
 		buttonPanel.add(classifyTestSet);
 
 		
 		resultsArea = new JTextArea();
-		resultsArea.setPreferredSize(new Dimension(500, 200));
+//		resultsArea.setPreferredSize(new Dimension(1000, 100));
 		resultsArea.setLineWrap(true);
 		resultsArea.setEditable(false);
+		
+		DefaultCaret caretResultsArea = (DefaultCaret) resultsArea.getCaret();
+		caretResultsArea.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		
+		JScrollPane scrollResults = new JScrollPane(resultsArea);
+		scrollResults.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollResults.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollResults.setPreferredSize(new Dimension(1000, 200));
 
 		JPanel resultsPanel = new JPanel();
 		resultsPanel.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createTitledBorder("Results"),
-				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-		resultsPanel.add(resultsArea);
+				BorderFactory.createEmptyBorder(5, 5, 15, 5)));
+		resultsPanel.add(scrollResults);
 
-		JPanel performOpsPanel = new JPanel();
-		performOpsPanel.add(buttonPanel);
-		performOpsPanel.add(resultsPanel);
-
-		
 		consoleArea = new JTextArea();
 		consoleArea.setForeground(Color.WHITE);
 		consoleArea.setBackground(Color.BLACK);
@@ -229,7 +227,7 @@ public class PSAnalysisPanel extends JPanel {
 		JScrollPane scroll = new JScrollPane(consoleArea);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scroll.setPreferredSize(new Dimension(800, 100));
+		scroll.setPreferredSize(new Dimension(1000, 100));
 
 		JPanel consolePanel = new JPanel();
 		consolePanel.setBorder(BorderFactory.createCompoundBorder(
@@ -246,10 +244,11 @@ public class PSAnalysisPanel extends JPanel {
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(establishLearningSetConnectionPanel);
-		add(loadLearningSetFilePanel);
+//		add(loadLearningSetFilePanel);
 		add(establishTestSetConnectionPanel);
-		add(loadTestSetFilePanel);
-		add(performOpsPanel);
+//		add(loadTestSetFilePanel);
+		add(buttonPanel);
+		add(resultsPanel);
 		add(consolePanel);
 		add(exitButton);
 
@@ -320,6 +319,7 @@ public class PSAnalysisPanel extends JPanel {
 						stat = learningSetConn.prepareStatement(query);
 						stat.executeUpdate();
 			 			sr.runScript(learningSetDocReader);
+			 			consoleArea.append("\nCongrats! Learning set SQL file loaded in the database");
 			 
 					} catch (Exception e1) {
 						consoleArea
@@ -366,24 +366,25 @@ public class PSAnalysisPanel extends JPanel {
 				logger.error("The learning set SQL file has not been read yet. Please load the SQL file before clustering learning set!");
 			} else {
 				consoleArea.append("\nClustering learning set...");
+				consoleArea.updateUI();
 
 				RunMeansAlgorithm runMeanObj=new RunMeansAlgorithm();
 				runMeanObj.formClusters(learningSetConn);
 				clusters=runMeanObj.getClusters();
 				learningInstants=runMeanObj.getInstants();
-				String result="Clusters:\nCluster Type                               ";
+				String result="Clusters:\nCluster Type\t\t";
 				for(int j=0;j<clusters.get(0).getAnalogMeasurements().size();j++){
-					result+="Sub "+(j+1);
+					result+="Sub"+(j+1)+"\t";
 				}
 				result=result+"\n";
 				for(int i=0;i<clusters.size();i++){
-					result+=clusters.get(i).getDesc();
+					result+="\n"+clusters.get(i).getDesc()+"\nVoltage\t\t";
 					for(int j=0;j<clusters.get(i).getAnalogMeasurements().size();j++){
-						result+=clusters.get(i).getAnalogMeasurements().get(j).getVoltageValue();
+						result+=String.format("%2.4f",clusters.get(i).getAnalogMeasurements().get(j).getVoltageValue())+"\t";
 					}
-					result+="                         ";
+					result+="\nAngle\t\t";
 					for(int j=0;j<clusters.get(i).getAnalogMeasurements().size();j++){
-						result+=clusters.get(i).getAnalogMeasurements().get(j).getAngleValue();
+						result+=String.format("%2.4f",clusters.get(i).getAnalogMeasurements().get(j).getAngleValue())+"\t";
 					}
 				}
 				
@@ -468,6 +469,7 @@ public class PSAnalysisPanel extends JPanel {
 						stat = testSetConn.prepareStatement(query);
 						stat.executeUpdate();
 			 			sr.runScript(testSetDocReader);
+			 			consoleArea.append("\nCongrats! Test set SQL file loaded in the database");
 					} catch (Exception e1) {
 						consoleArea
 						.append("\nSorry! Failed to execute the test set SQL script. Check the logs for details");
@@ -518,11 +520,9 @@ public class PSAnalysisPanel extends JPanel {
 				runKNNObj.runKNNAlgorithm(testSetConn, learningInstants, k);
 				testInstants=runKNNObj.getTestInstants();
 				runKNNObj.displayInstants(testInstants);
-				String result="Instant after classficiation:\n";
+				String result="Test Classification Results:\n\nTime\tOperational State\n";
 				for (int j = 0; j < testInstants.size(); j++) {
-					result+=testInstants.get(j).getInstant() + ":"
-							+ testInstants.get(j).getAvgAngle() + ":"
-							+ testInstants.get(j).getAvgVoltage() + ":"
+					result+=testInstants.get(j).getInstant() + "\t"
 							+ testInstants.get(j).getCluster().getDesc()+"\n";
 				}
 				

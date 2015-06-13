@@ -34,14 +34,12 @@ public class RunMeansAlgorithm {
 				e1.printStackTrace();
 			}// load a file into buffer;
 			String line;
-			int countSubst = 0;
 
 			String query = "Select * from substations";
 			for (int i = 1; i <= 4; i++) {
 				ArrayList<AnalogMeasurement> analogMeasurements = new ArrayList<AnalogMeasurement>();
 				PreparedStatement stat = connTraining.prepareStatement(query);
 				ResultSet rs = stat.executeQuery();
-				countSubst = 0;
 				while (rs.next()) {
 					String rdfId = rs.getString("rdfid");
 					try {
@@ -49,12 +47,9 @@ public class RunMeansAlgorithm {
 						if ((line = br.readLine()) != null) {
 							// Read each line of file
 							String a[] = line.split(",");
-							AnalogMeasurement analogMeasurementObj = new AnalogMeasurement(
-									0, Double.parseDouble(a[0]),
-									Double.parseDouble(a[1]), rdfId);
+							AnalogMeasurement analogMeasurementObj = new AnalogMeasurement(0, Double.parseDouble(a[0]),Double.parseDouble(a[1]), rdfId);
 							analogMeasurements.add(analogMeasurementObj);
 						}
-						countSubst++;
 					} catch (NumberFormatException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -66,13 +61,14 @@ public class RunMeansAlgorithm {
 				Cluster clusterObj = new Cluster(i, analogMeasurements);
 				clusters.add(clusterObj);
 			}
+			displayClusters(clusters);
 
 			query = "SELECT MAX(time) FROM analog_meas";
 			PreparedStatement stat = connTraining.prepareStatement(query);
 			ResultSet rs = stat.executeQuery();
 			rs.next();
 			int numOfTrainingData = rs.getInt("MAX(time)");
-
+			logger.info("Number of training data"+numOfTrainingData);
 			// Creating the instants from the database
 			for (int i = 1; i <= numOfTrainingData; i++) {
 				query = "Select * from substations";
@@ -84,7 +80,7 @@ public class RunMeansAlgorithm {
 					query = "Select * from analog_meas where sub_rdfid='"
 							+ rdfId + "' and time=" + i
 							+ " and name like '%VOLT%'";
-					// logger.debug(query);
+//					 logger.debug(query);
 					stat = connTraining.prepareStatement(query);
 					ResultSet rs1 = stat.executeQuery();
 					rs1.next();
@@ -92,21 +88,17 @@ public class RunMeansAlgorithm {
 					query = "Select * from analog_meas where sub_rdfid='"
 							+ rdfId + "' and time=" + i
 							+ " and name like '%ANG%'";
-					// logger.debug(query);
+//					 logger.debug(query);
 					stat = connTraining.prepareStatement(query);
 					ResultSet rs2 = stat.executeQuery();
 					rs2.next();
 					double angleValue = rs2.getDouble("value");
-					AnalogMeasurement am = new AnalogMeasurement(i, angleValue,
-							voltageValue, rdfId);
+					AnalogMeasurement am = new AnalogMeasurement(i, angleValue,	voltageValue, rdfId);
 					analogMeasurements.add(am);
 				}
+//				displayAnlogMeas(analogMeasurements);
 				Instant instantObj = new Instant(i, analogMeasurements);
 				instants.add(instantObj);
-				// if(i<=4 && i>=1){
-				// Cluster clusterObj=new Cluster(i, analogMeasurements);
-				// clusters.add(clusterObj);
-				// }
 			}
 
 		} catch (SQLException e) {
@@ -151,13 +143,13 @@ public class RunMeansAlgorithm {
 		int iteration = 1;
 		do {
 			newClusters = new ArrayList<Cluster>();
-			// logger.debug("Initial cluster at iteration "+iteration+":");
+			 logger.debug("Initial cluster at iteration "+iteration+":");
 			for (int j = 0; j < clusters.size(); j++) {
 				Cluster clusterObj = new Cluster(clusters.get(j).getLabel(),
 						clusters.get(j).getAnalogMeasurements());
 				newClusters.add(clusterObj);
 			}
-			// displayClusters(newClusters);
+			 displayClusters(newClusters);
 			newClusters = compareClusters(newClusters);
 
 			for (int i = 0; i < instants.size(); i++) {
@@ -175,8 +167,8 @@ public class RunMeansAlgorithm {
 				clusters.set(j, clusterObj);
 
 			}
-			// logger.debug("Cluster After iteration "+iteration+":");
-			// displayClusters(clusters);
+			 logger.debug("Cluster After iteration "+iteration+":");
+			 displayClusters(clusters);
 			iteration++;
 		} while (!converge(clusters, newClusters));
 		logger.debug("Clustering converges after "+iteration+" iterations");
@@ -207,9 +199,7 @@ public class RunMeansAlgorithm {
 			AnalogMeasurement analogMeasurementObj = null;
 			if (count != 0) {
 				 logger.info("Count ="+count+" for cluster"+clusterObj.getLabel());
-				analogMeasurementObj = new AnalogMeasurement(0, angleSum
-						/ count, voltageSum / count, clusterObj
-						.getAnalogMeasurements().get(j).getSubstationRdfID());
+				analogMeasurementObj = new AnalogMeasurement(0, angleSum/ count, voltageSum / count, clusterObj.getAnalogMeasurements().get(j).getSubstationRdfID());
 			} else {
 				 logger.info("Count becomes zero for cluster "+clusterObj.getLabel());
 				analogMeasurementObj = clusterObj.getAnalogMeasurements()
@@ -318,8 +308,7 @@ public class RunMeansAlgorithm {
 			logger.debug(analogMeasurements.get(j).getInstant() + ":"
 					+ analogMeasurements.get(j).getSubstationRdfID() + ":"
 					+ analogMeasurements.get(j).getAngleValue() + ":"
-					+ analogMeasurements.get(j).getVoltageValue() + ":"
-					+ analogMeasurements.get(j).getCluster().getDesc());
+					+ analogMeasurements.get(j).getVoltageValue());
 		}
 	}
 
@@ -339,13 +328,13 @@ public class RunMeansAlgorithm {
 		a = bubblesort(a);
 		for (int i = 0; i < clusters.size(); i++) {
 			if (clusters.get(i).getVoltage() == a[0])
-				clusters.get(i).setDesc("Generator on service");
+				clusters.get(i).setDesc("Generator on maintenance");
 			else if (clusters.get(i).getVoltage() == a[1])
-				clusters.get(i).setDesc("Line on service");
+				clusters.get(i).setDesc("Line on maintenance");
 			else if (clusters.get(i).getVoltage() == a[2])
 				clusters.get(i).setDesc("Day-time higher load");
 			else if (clusters.get(i).getVoltage() == a[3])
-				clusters.get(i).setDesc("Night time lower load");
+				clusters.get(i).setDesc("Night-time lower load");
 		}
 		return clusters;
 	}
@@ -370,5 +359,4 @@ public class RunMeansAlgorithm {
 	public ArrayList<Instant> getInstants(){
 		return instants;
 	}
-
 }
