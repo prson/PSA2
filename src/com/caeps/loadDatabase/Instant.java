@@ -18,10 +18,20 @@ public class Instant {
 	}
 	
 	public double getAvgVoltage(){
+		double voltageSum=0;
+		for(int i=0;i<analogMeasurements.size();i++){
+			voltageSum+=analogMeasurements.get(i).getVoltageValue();
+		}
+		avgVoltage=voltageSum/analogMeasurements.size();
 		return avgVoltage;
 	}
 	
 	public double getAvgAngle(){
+		double angleSum=0;
+		for(int i=0;i<analogMeasurements.size();i++){
+			angleSum+=analogMeasurements.get(i).getAngleValue();
+		}
+		avgAngle=angleSum/analogMeasurements.size();
 		return avgAngle;
 	}
 	

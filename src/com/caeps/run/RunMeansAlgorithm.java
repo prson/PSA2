@@ -21,17 +21,15 @@ public class RunMeansAlgorithm {
 	private static Logger logger = Logger.getLogger(RunMeansAlgorithm.class);
 	static ArrayList<Cluster> clusters = new ArrayList<Cluster>();
 
-	public static void main(String args[]) {
+	public static void main(Connection connTraining, Connection connTest) {
+		int k = 7;
 		ConnectToDB connectDBObj = new ConnectToDB();
-		Connection conn = connectDBObj.establishConnection(
+		connTraining = connectDBObj.establishConnection(
 				"jdbc:mysql://localhost:3306/powersystemassignment2", "root",
 				"root");
 		ArrayList<Instant> instants = new ArrayList<Instant>();
 
 		try {
-			
-			ArrayList<AnalogMeasurement> analogMeasurement1 = new ArrayList<AnalogMeasurement>();
-			
 			String dataFile = "initial_data.csv";
 			// Define buffer and split element
 			BufferedReader br = null;
@@ -42,58 +40,66 @@ public class RunMeansAlgorithm {
 				e1.printStackTrace();
 			}// load a file into buffer;
 			String line;
-			int countSubst=0;
-			
-			String query = "Select * from substations";
-//			for (int i = 1; i <= 4; i++) {
-//				ArrayList<AnalogMeasurement> analogMeasurements = new ArrayList<AnalogMeasurement>();
-//				PreparedStatement stat = conn.prepareStatement(query);
-//				ResultSet rs = stat.executeQuery();
-//				countSubst=0;
-//				while (rs.next()) {
-//					String rdfId = rs.getString("rdfid");
-//					try {
-//						
-//						if ((line = br.readLine()) != null) {
-//							// Read each line of file
-//								String a[]=line.split(",");
-//								AnalogMeasurement analogMeasurementObj =new AnalogMeasurement(0,Double.parseDouble(a[0]),Double.parseDouble(a[1]),rdfId);
-//								analogMeasurements.add(analogMeasurementObj);
-//							}
-//						countSubst++;
-//					} catch (NumberFormatException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					} catch (IOException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//				}
-//				Cluster clusterObj = new Cluster(i, analogMeasurements);
-//				clusters.add(clusterObj);
-//			}
+			int countSubst = 0;
 
-			//Creating the instants from the database
-			for (int i = 1; i <= 200; i++) {
+			String query = "Select * from substations";
+			for (int i = 1; i <= 4; i++) {
+				ArrayList<AnalogMeasurement> analogMeasurements = new ArrayList<AnalogMeasurement>();
+				PreparedStatement stat = connTraining.prepareStatement(query);
+				ResultSet rs = stat.executeQuery();
+				countSubst = 0;
+				while (rs.next()) {
+					String rdfId = rs.getString("rdfid");
+					try {
+
+						if ((line = br.readLine()) != null) {
+							// Read each line of file
+							String a[] = line.split(",");
+							AnalogMeasurement analogMeasurementObj = new AnalogMeasurement(
+									0, Double.parseDouble(a[0]),
+									Double.parseDouble(a[1]), rdfId);
+							analogMeasurements.add(analogMeasurementObj);
+						}
+						countSubst++;
+					} catch (NumberFormatException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				Cluster clusterObj = new Cluster(i, analogMeasurements);
+				clusters.add(clusterObj);
+			}
+
+			query = "SELECT MAX(time) FROM analog_meas";
+			PreparedStatement stat = connTraining.prepareStatement(query);
+			ResultSet rs = stat.executeQuery();
+			rs.next();
+			int numOfTrainingData = rs.getInt("MAX(time)");
+
+			// Creating the instants from the database
+			for (int i = 1; i <= numOfTrainingData; i++) {
 				query = "Select * from substations";
 				ArrayList<AnalogMeasurement> analogMeasurements = new ArrayList<AnalogMeasurement>();
-				PreparedStatement stat = conn.prepareStatement(query);
-				ResultSet rs = stat.executeQuery();
+				stat = connTraining.prepareStatement(query);
+				rs = stat.executeQuery();
 				while (rs.next()) {
 					String rdfId = rs.getString("rdfid");
 					query = "Select * from analog_meas where sub_rdfid='"
 							+ rdfId + "' and time=" + i
 							+ " and name like '%VOLT%'";
-					logger.debug(query);
-					stat = conn.prepareStatement(query);
+					// logger.debug(query);
+					stat = connTraining.prepareStatement(query);
 					ResultSet rs1 = stat.executeQuery();
 					rs1.next();
 					double voltageValue = rs1.getDouble("value");
 					query = "Select * from analog_meas where sub_rdfid='"
 							+ rdfId + "' and time=" + i
 							+ " and name like '%ANG%'";
-					logger.debug(query);
-					stat = conn.prepareStatement(query);
+					// logger.debug(query);
+					stat = connTraining.prepareStatement(query);
 					ResultSet rs2 = stat.executeQuery();
 					rs2.next();
 					double angleValue = rs2.getDouble("value");
@@ -103,19 +109,19 @@ public class RunMeansAlgorithm {
 				}
 				Instant instantObj = new Instant(i, analogMeasurements);
 				instants.add(instantObj);
-//				if(i<=4 && i>=1){
-//					Cluster clusterObj=new Cluster(i, analogMeasurements);
-//					clusters.add(clusterObj);
-//					}
+				// if(i<=4 && i>=1){
+				// Cluster clusterObj=new Cluster(i, analogMeasurements);
+				// clusters.add(clusterObj);
+				// }
 			}
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			if (conn != null) {
+			if (connTraining != null) {
 				try {
-					conn.close();
+					connTraining.close();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -125,69 +131,61 @@ public class RunMeansAlgorithm {
 		}
 
 		logger.debug("************************************Starting the KMeans Algorithm*******************************");
-
 		logger.debug("************************************Initial clusters*******************************");
 		displayClusters(clusters);
 		logger.debug("************************************Initial clusters*******************************");
 		clusters = calculateKMeans(instants, clusters);
-//		clusters = compareClusters(clusters);
-		logger.debug("************************************Resulting clusters based on Method 1*****************************************************");
+		clusters = compareClusters(clusters);
+		logger.debug("************************************Resulting clusters*****************************************************");
 		displayClusters(clusters);
-		// logger.debug("************************************Resulting clusters mabsed on Method 1*****************************************************");
-		// logger.debug("************************************Resulting analog measurements and relation based on Method 1*****************************************************");
-		// displayAnlogMeas(analogMeasurements);
-		// logger.debug("************************************Resulting analog measurements and relation based on Method 1*****************************************************");
-		// RunKNNAlgorithmSubstation runKnnAlgorithmSubstationObj = new
-		// RunKNNAlgorithmSubstation();
-		// ArrayList<AnalogMeasurement> testAnalogMeasurements =
-		// runKnnAlgorithmSubstationObj
-		// .runKNNAlgorithmSubstation(analogMeasurements);
-		// ArrayList<Instant> testInstants = calculateTestInstantSubstation(
-		// testAnalogMeasurements, analogMeasurements);
-		// logger.debug(testInstants.size());
-		// logger.debug("*************************************Results of Test Data Instants (Method 1)****************************************");
-		// displayInstants(testInstants);
-		// logger.debug("*************************************Results of Test Data Instants (Method 1)****************************************");
-		//
-		// logger.debug("************************************Starting with Method 2**************************************");
-		// clusters = calculateKMeansInstant(instants, clusters);
-
+		logger.debug("************************************Resulting clusters*****************************************************");
+		logger.debug("************************************Resulting learning instants*****************************************************");
+		displayInstants(instants);
+		logger.debug("************************************Resulting learning instants*****************************************************");
+		RunKNNAlgorithm runKnnAlgorithmSubstationObj = new RunKNNAlgorithm();
+		ArrayList<Instant> testInstants = runKnnAlgorithmSubstationObj
+				.runKNNAlgorithm(connTest,instants, k);
+		logger.debug(testInstants.size());
+		logger.debug("*************************************Results of Test Data Instants****************************************");
+		displayInstants(testInstants);
+		logger.debug("*************************************Results of Test Data Instants****************************************");
 	}
-
 
 	public static ArrayList<Cluster> calculateKMeans(
 			ArrayList<Instant> instants, ArrayList<Cluster> clusters) {
 		ArrayList<Cluster> newClusters = new ArrayList<Cluster>();
-		int iteration=1;
+		int iteration = 1;
 		do {
 			newClusters = new ArrayList<Cluster>();
-			logger.debug("Initial cluster at iteration "+iteration+":");
+			// logger.debug("Initial cluster at iteration "+iteration+":");
 			for (int j = 0; j < clusters.size(); j++) {
-				Cluster clusterObj=new Cluster(clusters.get(j).getLabel(), clusters.get(j).getAnalogMeasurements());
+				Cluster clusterObj = new Cluster(clusters.get(j).getLabel(),
+						clusters.get(j).getAnalogMeasurements());
 				newClusters.add(clusterObj);
 			}
-			displayClusters(newClusters);
-			
+			// displayClusters(newClusters);
+			newClusters = compareClusters(newClusters);
+
 			for (int i = 0; i < instants.size(); i++) {
 				Instant instantObj = instants.get(i);
 				Cluster a = getCluster(instantObj, newClusters);
 				instantObj.setCluster(a);
 				instants.set(i, instantObj);
 			}
-			
+
 			for (int j = 0; j < clusters.size(); j++) {
 				Cluster clusterObj = clusters.get(j);
 				ArrayList<AnalogMeasurement> analogMeasurementsForCluster = findClusterMean(
 						instants, clusterObj);
 				clusterObj.setAnalogMeasurements(analogMeasurementsForCluster);
 				clusters.set(j, clusterObj);
-				
+
 			}
-			logger.debug("Cluster After iteration "+iteration+":");
-			displayClusters(clusters);
+			// logger.debug("Cluster After iteration "+iteration+":");
+			// displayClusters(clusters);
 			iteration++;
 		} while (!converge(clusters, newClusters));
-
+		logger.debug("Clustering converges after "+iteration+" iterations");
 		return clusters;
 	}
 
@@ -200,7 +198,8 @@ public class RunMeansAlgorithm {
 			double angleSum = 0;
 			int count = 0;
 			for (int i = 0; i < instants.size(); i++) {
-				if (instants.get(i).getCluster().getLabel() == clusterObj.getLabel()) {
+				if (instants.get(i).getCluster().getLabel() == clusterObj
+						.getLabel()) {
 					voltageSum = voltageSum
 							+ instants.get(i).getAnalogMeasurements().get(j)
 									.getVoltageValue();
@@ -211,25 +210,16 @@ public class RunMeansAlgorithm {
 
 				}
 			}
-			AnalogMeasurement analogMeasurementObj=null;
-			if(count!=0){
-				logger.debug("Count ="+count+" for cluster"+clusterObj.getLabel());
-				analogMeasurementObj = new AnalogMeasurement(
-					0, angleSum / count, voltageSum / count, clusterObj
-							.getAnalogMeasurements().get(j)
-							.getSubstationRdfID());
-			}
-			else
-			{
-				logger.debug("Count becomes zero for cluster "+clusterObj.getLabel());
-				analogMeasurementObj = clusterObj.getAnalogMeasurements().get(j);
-//				analogMeasurementObj=new AnalogMeasurement(0, clusterObj
-//						.getAnalogMeasurements().get(j)
-//						.getAngleValue()+2, clusterObj
-//						.getAnalogMeasurements().get(j)
-//						.getVoltageValue()+0.1, clusterObj
-//							.getAnalogMeasurements().get(j)
-//							.getSubstationRdfID());
+			AnalogMeasurement analogMeasurementObj = null;
+			if (count != 0) {
+				 logger.info("Count ="+count+" for cluster"+clusterObj.getLabel());
+				analogMeasurementObj = new AnalogMeasurement(0, angleSum
+						/ count, voltageSum / count, clusterObj
+						.getAnalogMeasurements().get(j).getSubstationRdfID());
+			} else {
+				 logger.info("Count becomes zero for cluster "+clusterObj.getLabel());
+				analogMeasurementObj = clusterObj.getAnalogMeasurements()
+						.get(j);
 			}
 			analogMeasurements.add(analogMeasurementObj);
 		}
@@ -253,7 +243,7 @@ public class RunMeansAlgorithm {
 								- clusters.get(i).getAnalogMeasurements()
 										.get(j).getVoltageValue(), 2);
 			}
-			
+
 			double dist = Math.pow(distSum, 0.5);
 			if (dist < minDist) {
 				minDist = dist;
@@ -265,8 +255,8 @@ public class RunMeansAlgorithm {
 
 	public static boolean converge(ArrayList<Cluster> clusters,
 			ArrayList<Cluster> newClusters) {
-//		displayClusters(newClusters);
-//		displayClusters(clusters);
+		// displayClusters(newClusters);
+		// displayClusters(clusters);
 		boolean converge = true;
 		for (int i = 0; i < clusters.size(); i++) {
 			for (int j = 0; j < clusters.get(i).getAnalogMeasurements().size(); j++) {
@@ -284,10 +274,10 @@ public class RunMeansAlgorithm {
 				}
 			}
 		}
-		logger.debug("Converge? "+converge);
+		logger.debug("Converge? " + converge);
 		return converge;
 	}
-	
+
 	public static Cluster state(int a[],
 			ArrayList<AnalogMeasurement> trainingAnalogMeasurements) {
 		AnalogMeasurement analogMeasurementObj = null;
@@ -308,14 +298,23 @@ public class RunMeansAlgorithm {
 		return analogMeasurementObj.getCluster();
 	}
 
-
 	static public void displayClusters(ArrayList<Cluster> clusters) {
 		for (int j = 0; j < clusters.size(); j++) {
-			logger.debug("Cluster: "+clusters.get(j).getLabel());
+			logger.debug("Cluster: " + clusters.get(j).getLabel());
 			for (int i = 0; i < clusters.get(j).getAnalogMeasurements().size(); i++) {
-				logger.debug("For substation "+clusters.get(j).getAnalogMeasurements().get(i).getSubstationRdfID()+ ": "
-						+ clusters.get(j).getAnalogMeasurements().get(i).getVoltageValue()+", "+clusters.get(j).getAnalogMeasurements().get(i).getAngleValue());
+				logger.debug("For substation "
+						+ clusters.get(j).getAnalogMeasurements().get(i)
+								.getSubstationRdfID()
+						+ ": "
+						+ clusters.get(j).getAnalogMeasurements().get(i)
+								.getVoltageValue()
+						+ ", "
+						+ clusters.get(j).getAnalogMeasurements().get(i)
+								.getAngleValue());
 			}
+			logger.debug("Average Voltage: " + clusters.get(j).getVoltage()
+					+ ", Average Angle: " + clusters.get(j).getAngle());
+			logger.debug("Cluster Description: " + clusters.get(j).getDesc());
 		}
 	}
 

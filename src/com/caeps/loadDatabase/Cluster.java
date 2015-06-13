@@ -19,19 +19,21 @@ public class Cluster {
 		this.analogMeasurements=cluster.getAnalogMeasurements();
 	}
 
-	public void setVoltage(double newVoltage){
-		voltage=newVoltage;
-	}
-	
-	public void setAngle(double newAngle){
-		angle=newAngle;
-	}
-	
 	public double getVoltage(){
+		double voltageSum=0;
+		for(int i=0;i<analogMeasurements.size();i++){
+			voltageSum+=analogMeasurements.get(i).getVoltageValue();
+		}
+		voltage=voltageSum/analogMeasurements.size();
 		return voltage;
 	}
 	
 	public double getAngle(){
+		double angleSum=0;
+		for(int i=0;i<analogMeasurements.size();i++){
+			angleSum+=analogMeasurements.get(i).getAngleValue();
+		}
+		angle=angleSum/analogMeasurements.size();
 		return angle;
 	}
 
