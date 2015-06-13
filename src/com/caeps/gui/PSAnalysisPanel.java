@@ -317,6 +317,7 @@ public class PSAnalysisPanel extends JPanel {
 						PreparedStatement stat = learningSetConn.prepareStatement(query);
 						stat.executeUpdate();
 						query = "use PS2Learning";
+						stat = learningSetConn.prepareStatement(query);
 						stat.executeUpdate();
 			 			sr.runScript(learningSetDocReader);
 			 
@@ -464,6 +465,7 @@ public class PSAnalysisPanel extends JPanel {
 						PreparedStatement stat = testSetConn.prepareStatement(query);
 						stat.executeUpdate();
 						query = "use PS2Test";
+						stat = testSetConn.prepareStatement(query);
 						stat.executeUpdate();
 			 			sr.runScript(testSetDocReader);
 					} catch (Exception e1) {
@@ -513,7 +515,7 @@ public class PSAnalysisPanel extends JPanel {
 				consoleArea.append("\nClassifying test set...");
 				
 				RunKNNAlgorithm runKNNObj=new RunKNNAlgorithm();
-				runKNNObj.runKNNAlgorithm(learningSetConn, learningInstants, k);
+				runKNNObj.runKNNAlgorithm(testSetConn, learningInstants, k);
 				testInstants=runKNNObj.getTestInstants();
 				runKNNObj.displayInstants(testInstants);
 				String result="Instant after classficiation:\n";
