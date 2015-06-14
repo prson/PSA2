@@ -47,6 +47,7 @@ import com.caeps.run.RunMeansAlgorithm;
  * The Class PSAnalysisPanel.
  * A class extending a java panel and implementing buttons, field and labels using the swing framework.
  */
+
 public class PSAnalysisPanel extends JPanel {
 
 	/** The Constant serialVersionUID. */
