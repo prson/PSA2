@@ -176,7 +176,7 @@ public class PSAnalysisPanel extends JPanel {
 		.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory
 						.createTitledBorder("Enter the learning set database connection parameters"),
-				BorderFactory.createEmptyBorder(5, 15, 35, 15)));
+				BorderFactory.createEmptyBorder(5, 15, 30, 15)));
 
 		//Creating the java panel for inputting the learning parameter details (ends)
 		
@@ -209,7 +209,7 @@ public class PSAnalysisPanel extends JPanel {
 				.setBorder(BorderFactory.createCompoundBorder(
 						BorderFactory
 								.createTitledBorder("Enter the test set database connection parameters"),
-						BorderFactory.createEmptyBorder(5, 15, 35, 15)));
+						BorderFactory.createEmptyBorder(5, 15, 30, 15)));
 		establishTestSetConnectionPanel.add(testSetConnectionUrlLabel);
 		establishTestSetConnectionPanel.add(testSetConnectionUrlField);
 		establishTestSetConnectionPanel.add(testSetConnectionUsernameLabel);
@@ -266,12 +266,12 @@ public class PSAnalysisPanel extends JPanel {
 		JScrollPane scrollResults = new JScrollPane(resultsArea);
 		scrollResults.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollResults.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scrollResults.setPreferredSize(new Dimension(1000, 200));
+		scrollResults.setPreferredSize(new Dimension(1100, 150));
 
 		JPanel resultsPanel = new JPanel();
 		resultsPanel.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createTitledBorder("Results"),
-				BorderFactory.createEmptyBorder(5, 5, 15, 5)));
+				BorderFactory.createEmptyBorder(5, 5, 10, 5)));
 		resultsPanel.add(scrollResults);
 
 		//Creating the console area panel and text area, making it scrollable
@@ -286,7 +286,7 @@ public class PSAnalysisPanel extends JPanel {
 		JScrollPane scroll = new JScrollPane(consoleArea);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scroll.setPreferredSize(new Dimension(1000, 100));
+		scroll.setPreferredSize(new Dimension(1100, 100));
 
 		JPanel consolePanel = new JPanel();
 		consolePanel.setBorder(BorderFactory.createCompoundBorder(
