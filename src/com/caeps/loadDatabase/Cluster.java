@@ -11,7 +11,6 @@ package com.caeps.loadDatabase;
 
 import java.util.ArrayList;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Cluster.
  */

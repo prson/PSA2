@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 import com.caeps.loadDatabase.Cluster;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Instant.
  */

@@ -58,16 +58,14 @@ public class RunKNNAlgorithm {
 				testInstants.add(instantObj);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.debug("SQL Exception while trying to load the substation and measurement values from the database\n"+e);
 		} finally {
 			if (connTest != null) {
 				try {
 					connTest.close();
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+					logger.debug("SQL exception while trying to close the database connection\n"+e);				
+					}
 			}
 		}
 

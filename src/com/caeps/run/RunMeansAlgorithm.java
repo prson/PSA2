@@ -22,7 +22,6 @@ import com.caeps.loadDatabase.AnalogMeasurement;
 import com.caeps.loadDatabase.Cluster;
 import com.caeps.loadDatabase.Instant;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class RunMeansAlgorithm, contains the necessary function to form the clusters given a set of mesurement instants.
  */
@@ -50,8 +49,7 @@ public class RunMeansAlgorithm {
 			try {
 				br = new BufferedReader(new FileReader(dataFile));
 			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				logger.debug("Error while trying to load the initial data file"+e1);
 			}// load a file into buffer;
 			String line;
 
@@ -71,11 +69,9 @@ public class RunMeansAlgorithm {
 							analogMeasurements.add(analogMeasurementObj);
 						}
 					} catch (NumberFormatException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.debug("Number format exception while forming initial clusters from the initial data file\n"+e);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.debug("IO exception while forming initial clusters from the initial data file\n"+e);
 					}
 				}
 				Cluster clusterObj = new Cluster(i, analogMeasurements);
@@ -122,15 +118,13 @@ public class RunMeansAlgorithm {
 			}
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.debug("SQL Error while retrieving measurement and substation from the database\n"+e);
 		} finally {
 			if (connTraining != null) {
 				try {
 					connTraining.close();
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.debug("Error while closing the database connection\n"+e);
 				}
 			}
 
@@ -148,13 +142,6 @@ public class RunMeansAlgorithm {
 		logger.debug("************************************Resulting learning instants*****************************************************");
 		displayInstants(instants);
 		logger.debug("************************************Resulting learning instants*****************************************************");
-//		RunKNNAlgorithm runKnnAlgorithmSubstationObj = new RunKNNAlgorithm();
-//		ArrayList<Instant> testInstants = runKnnAlgorithmSubstationObj
-//				.runKNNAlgorithm(connTest,instants, k);
-//		logger.debug(testInstants.size());
-//		logger.debug("*************************************Results of Test Data Instants****************************************");
-//		displayInstants(testInstants);
-//		logger.debug("*************************************Results of Test Data Instants****************************************");
 	}
 
 	/**
@@ -404,11 +391,11 @@ public class RunMeansAlgorithm {
 		a = bubblesort(a);
 		for (int i = 0; i < clusters.size(); i++) {
 			if (clusters.get(i).getVoltage() == a[0])
-				clusters.get(i).setDesc("Generator on maintenance");
+				clusters.get(i).setDesc("Day-time high load");
 			else if (clusters.get(i).getVoltage() == a[1])
 				clusters.get(i).setDesc("Line on maintenance");
 			else if (clusters.get(i).getVoltage() == a[2])
-				clusters.get(i).setDesc("Day-time higher load");
+				clusters.get(i).setDesc("Generator on Maintenance");
 			else if (clusters.get(i).getVoltage() == a[3])
 				clusters.get(i).setDesc("Night-time lower load");
 		}

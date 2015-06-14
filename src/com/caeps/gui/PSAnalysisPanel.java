@@ -43,7 +43,6 @@ import com.caeps.run.ConnectToDB;
 import com.caeps.run.RunKNNAlgorithm;
 import com.caeps.run.RunMeansAlgorithm;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class PSAnalysisPanel.
  * A class extending a java panel and implementing buttons, field and labels using the swing framework.
@@ -402,9 +401,8 @@ public class PSAnalysisPanel extends JPanel {
 				learningSetDocReader = new BufferedReader(
 				        new FileReader(learningSetFilenameUrlField.getText()));
 			} catch (FileNotFoundException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
+				logger.debug("File not found exception while importing the learning data set sql file\n"+e);			
+				}
 
 			if (learningSetDocReader != null) {
 				if (learningSetConn != null) {
@@ -631,9 +629,7 @@ public class PSAnalysisPanel extends JPanel {
 				testSetDocReader = new BufferedReader(
 				        new FileReader(testSetFilenameUrlField.getText()));
 			} catch (FileNotFoundException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
+				logger.debug("File not found excpetion while trying to load the test data set SQL File\n"+e);			}
 
 			if (testSetDocReader != null) {
 				if (testSetConn != null) {

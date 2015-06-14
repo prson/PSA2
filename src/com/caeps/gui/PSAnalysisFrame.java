@@ -2,7 +2,6 @@ package com.caeps.gui;
 
 import javax.swing.JFrame;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class PSAnalysisFrame.
  */

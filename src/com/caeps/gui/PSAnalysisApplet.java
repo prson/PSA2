@@ -5,7 +5,6 @@ package com.caeps.gui;
 
 import javax.swing.JApplet;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class PSAnalysisApplet.
  */
