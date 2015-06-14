@@ -1,3 +1,11 @@
+/* A panel to be embedded in an applet or a frame to display the functionalities of the application.
+ * It takes in the connection details for the database server, the learning and test data
+ * of the power system.
+ * 
+ * Author: Pratik Sonthalia and Radhakrishnan Natarajan
+ * Date: 14 June' 15.
+ * 
+ */
 package com.caeps.gui;
 
 import java.awt.Color;
@@ -35,41 +43,90 @@ import com.caeps.run.ConnectToDB;
 import com.caeps.run.RunKNNAlgorithm;
 import com.caeps.run.RunMeansAlgorithm;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class PSAnalysisPanel.
+ * A class extending a java panel and implementing buttons, field and labels using the swing framework.
+ */
 public class PSAnalysisPanel extends JPanel {
 
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
+	
+	/** The logger. */
 	private static Logger logger = Logger.getLogger(PSAnalysisPanel.class);
 
+	/** The learning set connection url field. */
 	JTextField learningSetConnectionUrlField;
+	
+	/** The learning set connection username field. */
 	JTextField learningSetConnectionUsernameField;
+	
+	/** The learning set connection password field. */
 	JPasswordField learningSetConnectionPasswordField;
+	
+	/** The learning set filename url field. */
 	JTextField learningSetFilenameUrlField;
+	
+	/** The learning set conn. */
 	public static Connection learningSetConn = null;
+	
+	/** The learning set connection established. */
 	boolean learningSetConnectionEstablished = false;
+	
+	/** The learning set doc reader. */
 	Reader learningSetDocReader = null;
 
+	/** The test set connection url field. */
 	JTextField testSetConnectionUrlField;
+	
+	/** The test set connection username field. */
 	JTextField testSetConnectionUsernameField;
+	
+	/** The test set connection password field. */
 	JPasswordField testSetConnectionPasswordField;
+	
+	/** The test set filename url field. */
 	JTextField testSetFilenameUrlField;	
+	
+	/** The test set conn. to the database*/
 	public static Connection testSetConn = null;
+	
+	/** The test set connection established. */
 	boolean testSetConnectionEstablished = false;
+	
+	/** The test set doc reader. */
 	Reader testSetDocReader = null;
 
+	/** The statement used to execute query */
 	Statement stmt = null;
 
+	/** The results area. */
 	JTextArea resultsArea;
+	
+	/** The console area. */
 	public static JTextArea consoleArea;
 	
+	/** The clusters. */
 	ArrayList<Cluster> clusters;
+	
+	/** The learning instants. */
 	ArrayList<Instant> learningInstants;
+	
+	/** The test instants. */
 	ArrayList<Instant> testInstants;
 	
+	/** The k. */
 	private int k=7;
 	
 
+	/**
+	 * Instantiates a new PS analysis panel.
+	 */
 	public PSAnalysisPanel() {
 		
+		
+		//Creating the java panel for inputting the learning parameter details (starts)
 		JLabel learningSetConnectionUrlLabel = new JLabel("Learning set connection URL: ");
 
 		learningSetConnectionUrlField = new JTextField();
@@ -122,8 +179,9 @@ public class PSAnalysisPanel extends JPanel {
 						.createTitledBorder("Enter the learning set database connection parameters"),
 				BorderFactory.createEmptyBorder(5, 15, 35, 15)));
 
-
-
+		//Creating the java panel for inputting the learning parameter details (ends)
+		
+		//Creating the java panel for inputting the test parameter details (starts)
 		JLabel testSetConnectionUrlLabel = new JLabel("Test set connection URL: ");
 
 		testSetConnectionUrlField = new JTextField();
@@ -177,6 +235,10 @@ public class PSAnalysisPanel extends JPanel {
 		loadTestSetFilePanel.add(loadTestSetFileButton);
 		establishTestSetConnectionPanel.add(loadTestSetFilePanel);
 		
+		//Creating the java panel for inputting the test parameter details (ends)
+		
+		//Creating the perform Ops panel containing the execute buttons
+		
 		// The execute clustering button
 		JButton clusterLearningSet = new JButton("Cluster Learning Set");
 		ClusterLearningSetMouseListener clusterLearningSetMouseListener = new ClusterLearningSetMouseListener();
@@ -187,18 +249,15 @@ public class PSAnalysisPanel extends JPanel {
 		classifyTestSet.addMouseListener(classifyTestSetMouseListener);
 
 		JPanel buttonPanel = new JPanel();
-//		buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-//		buttonPanel.setAlignmentY(Component.TOP_ALIGNMENT);
-//		buttonPanel.setPreferredSize(new Dimension(150, 100));
 		buttonPanel.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createTitledBorder("Perform Ops"),
 				BorderFactory.createEmptyBorder(0, 5, 5, 5)));
 		buttonPanel.add(clusterLearningSet);
 		buttonPanel.add(classifyTestSet);
 
-		
+
+		//Creating the result area panel and text area, making it scrollable
 		resultsArea = new JTextArea();
-//		resultsArea.setPreferredSize(new Dimension(1000, 100));
 		resultsArea.setLineWrap(true);
 		resultsArea.setEditable(false);
 		
@@ -216,6 +275,7 @@ public class PSAnalysisPanel extends JPanel {
 				BorderFactory.createEmptyBorder(5, 5, 15, 5)));
 		resultsPanel.add(scrollResults);
 
+		//Creating the console area panel and text area, making it scrollable
 		consoleArea = new JTextArea();
 		consoleArea.setForeground(Color.WHITE);
 		consoleArea.setBackground(Color.BLACK);
@@ -239,9 +299,9 @@ public class PSAnalysisPanel extends JPanel {
 		JButton exitButton = new JButton("Exit");
 		ExitMouseListener exitMouseListener = new ExitMouseListener();
 		exitButton.addMouseListener(exitMouseListener);
-
 		exitButton.setPreferredSize(new Dimension(120, 30));
 
+		//Adding all the components to the main panel
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(establishLearningSetConnectionPanel);
 //		add(loadLearningSetFilePanel);
@@ -254,8 +314,22 @@ public class PSAnalysisPanel extends JPanel {
 
 	}
 
+	/**
+	 * The listener interface for receiving establishLearningSetConnectionMouse events.
+	 * The class that is interested in processing a establishLearningSetConnectionMouse
+	 * event implements this interface, and the object created
+	 * with that class is registered with a component using the
+	 * component's <code>addEstablishLearningSetConnectionMouseListener<code> method. When
+	 * the establishLearningSetConnectionMouse event occurs, that object's appropriate
+	 * method is invoked.
+	 *
+	 * @see EstablishLearningSetConnectionMouseEvent
+	 */
 	class EstablishLearningSetConnectionMouseListener implements MouseListener {
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 */
 		public void mouseClicked(MouseEvent e) {
 			if (learningSetConn != null) {
 				try {
@@ -280,21 +354,47 @@ public class PSAnalysisPanel extends JPanel {
 			}
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 */
 		public void mouseEntered(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 */
 		public void mouseExited(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
 		public void mouseReleased(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
 		public void mousePressed(MouseEvent e) {
 		}
 	}
 
+	/**
+	 * The listener interface for receiving loadLearningSetFileMouse events.
+	 * The class that is interested in processing a loadLearningSetFileMouse
+	 * event implements this interface, and the object created
+	 * with that class is registered with a component using the
+	 * component's <code>addLoadLearningSetFileMouseListener<code> method. When
+	 * the loadLearningSetFileMouse event occurs, that object's appropriate
+	 * method is invoked.
+	 *
+	 * @see LoadLearningSetFileMouseEvent
+	 */
 	class LoadLearningSetFileMouseListener implements MouseListener {
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 */
 		public void mouseClicked(MouseEvent e) {
 			logger.debug("Inside load learning set SQL file listener");
 
@@ -339,21 +439,47 @@ public class PSAnalysisPanel extends JPanel {
 			}
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 */
 		public void mouseEntered(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 */
 		public void mouseExited(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
 		public void mouseReleased(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
 		public void mousePressed(MouseEvent e) {
 		}
 	}
 
+	/**
+	 * The listener interface for receiving clusterLearningSetMouse events.
+	 * The class that is interested in processing a clusterLearningSetMouse
+	 * event implements this interface, and the object created
+	 * with that class is registered with a component using the
+	 * component's <code>addClusterLearningSetMouseListener<code> method. When
+	 * the clusterLearningSetMouse event occurs, that object's appropriate
+	 * method is invoked.
+	 *
+	 * @see ClusterLearningSetMouseEvent
+	 */
 	class ClusterLearningSetMouseListener implements MouseListener {
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 */
 		public void mouseClicked(MouseEvent e) {
 			logger.debug("Inside cluster learning set listener");
 			if (learningSetConn == null) {
@@ -393,21 +519,47 @@ public class PSAnalysisPanel extends JPanel {
 			}
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 */
 		public void mouseEntered(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 */
 		public void mouseExited(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
 		public void mouseReleased(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
 		public void mousePressed(MouseEvent e) {
 		}
 	}
 
+	/**
+	 * The listener interface for receiving establishTestSetConnectionMouse events.
+	 * The class that is interested in processing a establishTestSetConnectionMouse
+	 * event implements this interface, and the object created
+	 * with that class is registered with a component using the
+	 * component's <code>addEstablishTestSetConnectionMouseListener<code> method. When
+	 * the establishTestSetConnectionMouse event occurs, that object's appropriate
+	 * method is invoked.
+	 *
+	 * @see EstablishTestSetConnectionMouseEvent
+	 */
 	class EstablishTestSetConnectionMouseListener implements MouseListener {
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 */
 		public void mouseClicked(MouseEvent e) {
 			if (testSetConn != null) {
 				try {
@@ -431,21 +583,48 @@ public class PSAnalysisPanel extends JPanel {
 						.append("\nSorry! Connection not established, check the logs and try again.");
 			}
 		}
+		
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 */
 		public void mouseEntered(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 */
 		public void mouseExited(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
 		public void mouseReleased(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
 		public void mousePressed(MouseEvent e) {
 		}
 	}
 
+	/**
+	 * The listener interface for receiving loadTestSetFileMouse events.
+	 * The class that is interested in processing a loadTestSetFileMouse
+	 * event implements this interface, and the object created
+	 * with that class is registered with a component using the
+	 * component's <code>addLoadTestSetFileMouseListener<code> method. When
+	 * the loadTestSetFileMouse event occurs, that object's appropriate
+	 * method is invoked.
+	 *
+	 * @see LoadTestSetFileMouseEvent
+	 */
 	class LoadTestSetFileMouseListener implements MouseListener {
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 */
 		public void mouseClicked(MouseEvent e) {
 			logger.debug("Inside load file listener");
 			try {
@@ -488,21 +667,47 @@ public class PSAnalysisPanel extends JPanel {
 			}
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 */
 		public void mouseEntered(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 */
 		public void mouseExited(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
 		public void mouseReleased(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
 		public void mousePressed(MouseEvent e) {
 		}
 	}
 
+	/**
+	 * The listener interface for receiving classifyTestSetMouse events.
+	 * The class that is interested in processing a classifyTestSetMouse
+	 * event implements this interface, and the object created
+	 * with that class is registered with a component using the
+	 * component's <code>addClassifyTestSetMouseListener<code> method. When
+	 * the classifyTestSetMouse event occurs, that object's appropriate
+	 * method is invoked.
+	 *
+	 * @see ClassifyTestSetMouseEvent
+	 */
 	class ClassifyTestSetMouseListener implements MouseListener {
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 */
 		public void mouseClicked(MouseEvent e) {
 			logger.debug("Inside classify test set mouse listener");
 			if (testSetConn == null) {
@@ -531,21 +736,47 @@ public class PSAnalysisPanel extends JPanel {
 			}
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 */
 		public void mouseEntered(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 */
 		public void mouseExited(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
 		public void mouseReleased(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
 		public void mousePressed(MouseEvent e) {
 		}
 	}
 
+	/**
+	 * The listener interface for receiving exitMouse events.
+	 * The class that is interested in processing a exitMouse
+	 * event implements this interface, and the object created
+	 * with that class is registered with a component using the
+	 * component's <code>addExitMouseListener<code> method. When
+	 * the exitMouse event occurs, that object's appropriate
+	 * method is invoked.
+	 *
+	 * @see ExitMouseEvent
+	 */
 	class ExitMouseListener implements MouseListener {
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 */
 		public void mouseClicked(MouseEvent e) {
 			logger.debug("Closing connections and exiting!");
 			if (learningSetConn != null) {
@@ -567,15 +798,27 @@ public class PSAnalysisPanel extends JPanel {
 			System.exit(0);
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 */
 		public void mouseEntered(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 */
 		public void mouseExited(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
 		public void mouseReleased(MouseEvent e) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
 		public void mousePressed(MouseEvent e) {
 		}
 	}
