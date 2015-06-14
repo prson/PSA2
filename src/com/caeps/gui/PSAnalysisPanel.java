@@ -729,6 +729,8 @@ public class PSAnalysisPanel extends JPanel {
 				
 				consoleArea.append("\nTest set classified!");
 				resultsArea.setText(result);
+				consoleArea.append("\nTest set clustering done!");
+				
 			}
 		}
 
