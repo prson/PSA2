@@ -1,3 +1,9 @@
+/* The Class RunMeansAlgorithm, contains the necessary function to form the clusters given a set of mesurement instants.
+ * 
+ * Author: Pratik Sonthalia, Radhakrishnan Natarajan
+ * Date: 14 June' 15.
+ * 
+ */
 package com.caeps.run;
 
 import java.io.BufferedReader;
@@ -16,12 +22,26 @@ import com.caeps.loadDatabase.AnalogMeasurement;
 import com.caeps.loadDatabase.Cluster;
 import com.caeps.loadDatabase.Instant;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class RunMeansAlgorithm, contains the necessary function to form the clusters given a set of mesurement instants.
+ */
 public class RunMeansAlgorithm {
 
+	/** The logger. */
 	private static Logger logger = Logger.getLogger(RunMeansAlgorithm.class);
+	
+	/** The clusters. */
 	static ArrayList<Cluster> clusters = new ArrayList<Cluster>();
+	
+	/** The instants. */
 	ArrayList<Instant> instants = new ArrayList<Instant>();
 	
+	/**
+	 * Form clusters.
+	 *
+	 * @param connTraining the conn training
+	 */
 	public void formClusters(Connection connTraining) {
 		try {
 			String dataFile = "initial_data.csv";
@@ -137,6 +157,13 @@ public class RunMeansAlgorithm {
 //		logger.debug("*************************************Results of Test Data Instants****************************************");
 	}
 
+	/**
+	 * Calculate k means.
+	 *
+	 * @param instants the instants
+	 * @param clusters the clusters
+	 * @return the array list
+	 */
 	public ArrayList<Cluster> calculateKMeans(
 			ArrayList<Instant> instants, ArrayList<Cluster> clusters) {
 		ArrayList<Cluster> newClusters = new ArrayList<Cluster>();
@@ -175,6 +202,13 @@ public class RunMeansAlgorithm {
 		return clusters;
 	}
 
+	/**
+	 * Find cluster mean.
+	 *
+	 * @param instants the instants
+	 * @param clusterObj the cluster obj
+	 * @return the array list
+	 */
 	public static ArrayList<AnalogMeasurement> findClusterMean(
 			ArrayList<Instant> instants, Cluster clusterObj) {
 
@@ -210,6 +244,13 @@ public class RunMeansAlgorithm {
 		return analogMeasurements;
 	}
 
+	/**
+	 * Gets the cluster.
+	 *
+	 * @param instant the instant
+	 * @param clusters the clusters
+	 * @return the cluster
+	 */
 	public static Cluster getCluster(Instant instant,
 			ArrayList<Cluster> clusters) {
 		Cluster a = null;
@@ -237,6 +278,13 @@ public class RunMeansAlgorithm {
 		return a;
 	}
 
+	/**
+	 * Converge.
+	 *
+	 * @param clusters the clusters
+	 * @param newClusters the new clusters
+	 * @return true, if successful
+	 */
 	public static boolean converge(ArrayList<Cluster> clusters,
 			ArrayList<Cluster> newClusters) {
 		// displayClusters(newClusters);
@@ -262,6 +310,13 @@ public class RunMeansAlgorithm {
 		return converge;
 	}
 
+	/**
+	 * State.
+	 *
+	 * @param a the a
+	 * @param trainingAnalogMeasurements the training analog measurements
+	 * @return the cluster
+	 */
 	public static Cluster state(int a[],
 			ArrayList<AnalogMeasurement> trainingAnalogMeasurements) {
 		AnalogMeasurement analogMeasurementObj = null;
@@ -282,6 +337,11 @@ public class RunMeansAlgorithm {
 		return analogMeasurementObj.getCluster();
 	}
 
+	/**
+	 * Display clusters.
+	 *
+	 * @param clusters the clusters
+	 */
 	static public void displayClusters(ArrayList<Cluster> clusters) {
 		for (int j = 0; j < clusters.size(); j++) {
 			logger.debug("Cluster: " + clusters.get(j).getLabel());
@@ -302,6 +362,11 @@ public class RunMeansAlgorithm {
 		}
 	}
 
+	/**
+	 * Display analog measurements
+	 *
+	 * @param analogMeasurements the analog measurements
+	 */
 	public void displayAnlogMeas(
 			ArrayList<AnalogMeasurement> analogMeasurements) {
 		for (int j = 0; j < analogMeasurements.size(); j++) {
@@ -312,6 +377,11 @@ public class RunMeansAlgorithm {
 		}
 	}
 
+	/**
+	 * Display instants.
+	 *
+	 * @param instants the instants
+	 */
 	public void displayInstants(ArrayList<Instant> instants) {
 		for (int j = 0; j < instants.size(); j++) {
 			logger.debug(instants.get(j).getInstant() + ":"
@@ -321,6 +391,12 @@ public class RunMeansAlgorithm {
 		}
 	}
 
+	/**
+	 * Compare clusters.
+	 *
+	 * @param clusters the clusters
+	 * @return the array list
+	 */
 	public ArrayList<Cluster> compareClusters(ArrayList<Cluster> clusters) {
 		double a[] = { clusters.get(0).getVoltage(),
 				clusters.get(1).getVoltage(), clusters.get(2).getVoltage(),
@@ -339,6 +415,12 @@ public class RunMeansAlgorithm {
 		return clusters;
 	}
 
+	/**
+	 * Bubblesort.
+	 *
+	 * @param a the a
+	 * @return the double[]
+	 */
 	static double[] bubblesort(double a[]) {
 		for (int i = 0; i < a.length; i++) {
 			for (int j = i + 1; j < a.length; j++) {
@@ -352,10 +434,20 @@ public class RunMeansAlgorithm {
 		return a;
 	}
 	
+	/**
+	 * Gets the clusters.
+	 *
+	 * @return the clusters
+	 */
 	public ArrayList<Cluster> getClusters(){
 		return clusters;
 	}
 	
+	/**
+	 * Gets the instants.
+	 *
+	 * @return the instants
+	 */
 	public ArrayList<Instant> getInstants(){
 		return instants;
 	}
